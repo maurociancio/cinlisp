@@ -6,7 +6,7 @@
         (cond
             ;parseamos variables globales
             ((eq (caar code) 'int)
-            (exec (cdr code) input (add_global_var memory (car code)) functions))
+            (exec (cdr code) input (add_global_var memory (parse_assignment (car code))) functions))
 
             ;parseamos las funciones
             (t (exec (cdr code) input memory (add_function functions (car code))))
@@ -77,17 +77,31 @@
 ;memory: ( (globales) (stack) )
 ; (globales) = ( (a 1) (b 2) (c 3) ... )
 ; (stack) = ( ( (a 1) (b 2) ) ( (c 4) ))
-;code:  int a = 0
-;       int b
-(defun add_global_var (memory code)
+;var_val  (a 0)
+(defun add_global_var (memory var_val)
     ;si la mem es null la inicializamos
     (if (null memory)
-        (list (list (parse_assignment code)) (list))
-        (if (exists_var (cadr code) (car memory))
+        (list (list var_val) (list))
+        (if (exists_var (car var_val) (car memory))
             ;reemplazamos la variable que ya existe en la memoria
-            (cons (replace_var code (car memory)) (cdr memory))
+            (cons (replace_var var_val (car memory)) (cdr memory))
             ;creamos la variable en memoria
-            (cons (cons (parse_assignment code) (car memory)) (cdr memory))
+            (cons (cons var_val (car memory)) (cdr memory))
+        )
+    )
+)
+
+;agrega o actualiza una variable en memoria
+;memory: ( (a 10) (b 20) .... )
+;var_val: (a 10)
+(defun add_var (memory var_val)
+    (if (null memory)
+        ;creamos la memoria
+        (list var_val)
+        ;buscamos si existe
+        (if (exists_var (car var_val) memory)
+            (replace_var var_val memory)
+            (cons var_val memory)
         )
     )
 )
@@ -105,15 +119,15 @@
     )
 )
 
-;code:  int a = 0
-;       int b
+;actualiza el valor de una variable en la memoria solo si existe, no la agrega si no existe
+;var_val  (a  0)
 ;memory: ( (a 2) (b 3) (c 4) )
-(defun replace_var (code memory)
+(defun replace_var (var_val memory)
     (if (null memory)
         nil
-        (if (eq (caar memory) (cadr code))
-            (cons (parse_assignment code) (replace_var code (cdr memory)))
-            (cons (car memory) (replace_var code (cdr memory)))
+        (if (eq (caar memory) (car var_val))
+            (cons var_val (replace_var var_val (cdr memory)))
+            (cons (car memory) (replace_var var_val (cdr memory)))
         )
     )
 )
@@ -191,15 +205,21 @@
 (test 'parse-assign2 (parse_assignment '(int b)) '(b 0))
 (test 'parse-assign3 (parse_assignment '(int c = 1)) '(c 1))
 
-(test 'add-global-var1 (add_global_var nil '(int c = 1)) 
+(test 'add-global-var1 (add_global_var nil '(c 1))
                             '(
                                 ((c 1))
                                 ()
                             ))
 
-(test 'add-global-var2 (add_global_var '( ((a 2)) () ) '(int c = 1)) 
+(test 'add-global-var2 (add_global_var '( ((a 2)) () ) '(c 1))
                             '(
                                 ((c 1)(a 2))
+                                ()
+                            ))
+
+(test 'add-global-var3 (add_global_var '( ((a 2)) () ) '(a 10))
+                            '(
+                                ((a 10))
                                 ()
                             ))
 
@@ -208,9 +228,9 @@
 (test 'exists-var3 (exists_var 'c '( (a 1) (b 2) )) nil)
 (test 'exists-var4 (exists_var 'b '( (a 1) (b 2) )) t)
 
-(test 'replace-var1 (replace_var '(int a = 10) '( (a 1) (b 2) )) '( (a 10) (b 2) ))
-(test 'replace-var2 (replace_var '(int c = 10) '( (a 1) (b 2) )) '( (a 1) (b 2) ))
-(test 'replace-var3 (replace_var '(int a = 10) '( (a 1) (a 1) )) '( (a 10) (a 10) ))
+(test 'replace-var1 (replace_var '(a 10) '( (a 1) (b 2) )) '( (a 10) (b 2) ))
+(test 'replace-var2 (replace_var '(c 10) '( (a 1) (b 2) )) '( (a 1) (b 2) ))
+(test 'replace-var3 (replace_var '(a 10) '( (a 1) (a 1) )) '( (a 10) (a 10) ))
 
 (test 'add-function (add_function nil '(main ())) '((main () )) )
 
