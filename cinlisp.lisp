@@ -244,6 +244,20 @@
     '(50 150)
 )
 
+(test 'run-printf3 (exec '
+        (
+            (int a = 250)
+            (main (
+                  (printf 50)
+                  (printf 150)
+                  (printf a)
+                  )
+            )
+        )
+    )
+    '(50 150 250)
+)
+
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
