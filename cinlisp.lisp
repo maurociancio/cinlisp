@@ -81,7 +81,9 @@
     (if (null memory)
         (list (list (parse_assignment code)) (list))
         (if (exists_var (cadr code) (car memory))
+            ;reemplazamos la variable que ya existe en la memoria
             (cons (replace_var code (car memory)) (cdr memory))
+            ;creamos la variable en memoria
             (cons (cons (parse_assignment code) (car memory)) (cdr memory))
         )
     )
