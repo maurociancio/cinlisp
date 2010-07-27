@@ -195,6 +195,19 @@
     '(50)
 )
 
+(test 'run-printf2 (exec '
+        (
+            (main (
+                  (printf 50)
+                  (printf 150)
+                  )
+            )
+        )
+    )
+    '(50 150)
+)
+
+
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
 (test 'expand3 (expand '(2)) '2)
