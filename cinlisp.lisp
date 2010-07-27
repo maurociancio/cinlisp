@@ -23,6 +23,9 @@
     (if (null f)
         output
         (cond
+            ;parseamos variables locales
+            ((eq (caar f) 'int)
+            (run_fun (cdr f) input memory functions output))
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output)))
