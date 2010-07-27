@@ -39,8 +39,19 @@
 ;expande una expresion
 ;expr: a, a+b, 3, 3+4, 10+20+4, lala
 (defun expand (expr &optional (input nil) (memory nil) (functions nil) (output nil))
-    (cond   ((null expr) nil)
-            ((atom expr) expr)
+    (cond
+            ;expresion nula
+            ((null expr) nil)
+            ;es un atomo
+            ((atom expr)
+                (if (numberp expr)
+                    ;es un numero literal
+                    expr
+                    ;es una variable, hay que buscarla en la memoria
+                    (search_var expr memory)
+                )
+            )
+            ;es una lista con un atomo
             ((eq (length expr) 1) (expand (car expr) input memory functions output))
             (t expr)
     )
@@ -98,6 +109,32 @@
         (if (eq (caar memory) (cadr code))
             (cons (parse_assignment code) (replace_var code (cdr memory)))
             (cons (car memory) (replace_var code (cdr memory)))
+        )
+    )
+)
+
+;busca una variable primero en el stack y luego en el sector global
+(defun search_var (var memory)
+    (if (null memory)
+        nil
+        ;busco primero en el primer stack
+        (if (exists_var var (caadr memory))
+            (get_value var (caadr memory))
+            ;luego en el sector global
+            (get_value var (car memory))
+        )
+    )
+)
+
+;busca el valor de una variable en la memoria
+;var: a
+;memory: ( (a 20) .... )
+(defun get_value (var memory)
+    (if (null memory)
+        nil
+        (if (eq (caar memory) var)
+            (cadar memory)
+            (get_value var (cdr memory))
         )
     )
 )
@@ -214,3 +251,9 @@
 
 (test 'expand-printf (expand_printf '(printf 2)) '(2))
 (test 'expand-printf2 (expand_printf '(printf (2))) '(2))
+
+(test 'search_var1 (search_var 'a '( ((a 10)) () ) ) '10)
+(test 'search_var2 (search_var 'b '( ((a 10)(b 50)) () ) ) '50)
+(test 'search_var3 (search_var 'b '( ((a 10)(b 50)) (((b 1000)) ( (b 500)) ) ) ) '1000)
+(test 'search_var4 (search_var 'b '( ((a 10)(b 50)) (((b 1000)) ) ) ) '1000)
+(test 'search_var5 (search_var 'a '( ((a 10)(b 50)) (((b 1000)) ) ) ) '10)
