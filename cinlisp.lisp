@@ -5,11 +5,11 @@
         (run_fun (search_f functions 'main) input memory functions)
         (cond
             ;parseamos variables globales
-            (eq (caar code) 'int)
-            (exec (cdr code) input (add_global_var memory (car code)) functions)
+            ((eq (caar code) 'int)
+            (exec (cdr code) input (add_global_var memory (car code)) functions))
 
             ;parseamos las funciones
-            (t exec (cdr code) input memory (add_function functions (car code)))
+            (t (exec (cdr code) input memory (add_function functions (car code))))
         )
     )
 )
@@ -137,6 +137,12 @@
 ;=============================
 ;tests
 ;=============================
+(defun enable_traces ()
+    (trace exec)
+    (trace run_fun)
+)
+;(enable_traces)
+
 (test 'exec-null (exec nil nil) nil)
 
 (test 'parse-assign1 (parse_assignment '(int a)) '(a 0))
@@ -169,8 +175,14 @@
 (test 'search_f (search_f '( (main (aaaa)) (p () ) ) 'main) '(aaaa))
 (test 'search_f2 (search_f '( (main (aaaa)) (p () ) ) 'p) '())
 
-;(test 'run-empty-main (exec '   (
-;                    (main
+(test 'run-empty-main (exec '
+        (
+            (main
+            )
+        )
+    )
+    nil
+)
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
