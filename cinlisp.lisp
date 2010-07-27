@@ -28,7 +28,7 @@
 	(if (null memory)
 		(list (list (parse_assignment code)) (list))
 		(if (exists_var (cadr code) (car memory))
-			nil
+			(cons (replace_var code (car memory)) (cdr memory))
 			nil
 		)
 	)
@@ -49,6 +49,20 @@
 
 ;code: 	int a = 0
 ;	int b
+;memory: ( (a 2) (b 3) (c 4) )
+(defun replace_var (code memory)
+	(if (null memory)
+		nil
+		(if (eq (caar memory) (cadr code))
+			(cons (parse_assignment code) (replace_var code (cdr memory)))
+			(cons (car memory) (replace_var code (cdr memory)))
+		)
+	)
+)
+
+;code: 	int a = 0
+;	int b
+;devuelve (a 0)
 (defun parse_assignment (code)
 	(if (null code)
 		nil
@@ -95,3 +109,7 @@
 (test 'exists-var2 (exists_var 'a '( (a 1) (b 2) )) t)
 (test 'exists-var3 (exists_var 'c '( (a 1) (b 2) )) nil)
 (test 'exists-var4 (exists_var 'b '( (a 1) (b 2) )) t)
+
+(test 'replace-var1 (replace_var '(int a = 10) '( (a 1) (b 2) )) '( (a 10) (b 2) ))
+(test 'replace-var2 (replace_var '(int c = 10) '( (a 1) (b 2) )) '( (a 1) (b 2) ))
+(test 'replace-var3 (replace_var '(int a = 10) '( (a 1) (a 1) )) '( (a 10) (a 10) ))
