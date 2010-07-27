@@ -24,8 +24,8 @@
         output
         (cond
             ;printf
-            (eq (caar f) 'printf)
-            (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output))
+            ((eq (caar f) 'printf)
+            (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output)))
         )
     )
 )
@@ -128,8 +128,8 @@
 ;=============================
 (defun test (name got expected)
     (if (equal expected got)
-        ;t
-        (progn (print '==ok==) (print name))
+        t
+        ;(progn (print '==ok==) (print name))
         (progn (print '==error==) (print name) (print 'expected) (print expected) (print 'got) (print got))
     )
 )
@@ -182,6 +182,17 @@
         )
     )
     nil
+)
+
+(test 'run-printf (exec '
+        (
+            (main (
+                  (printf 50)
+                  )
+            )
+        )
+    )
+    '(50)
 )
 
 (test 'expand1 (expand '2) '2)
