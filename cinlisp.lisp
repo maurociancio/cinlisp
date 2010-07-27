@@ -2,7 +2,7 @@
 
 (defun exec (code input &optional (memory nil)(functions nil))
 	(if (null code)
-		nil
+		(run_fun (search_f functions 'main) input memory functions)
 		(cond
 		;parseamos variables globales
 			(eq (caar code) 'int)
@@ -14,7 +14,21 @@
 	)
 )
 
-(defun exec_main (code input &optional (memory nil))
+(defun run_fun (f input memory functions)
+	nil
+)
+
+;busca en las funciones la funcion con nombre name y la devuelve
+;funciones: (f1 f2 ... f3)
+;devuelve f que se llame name
+(defun search_f (functions name)
+	(if (null functions)
+		nil
+		(if (eq (caar functions) name)
+			(cadar functions)
+			(search_f (cdr functions) name)
+		)
+	)
 )
 
 ;agregar una variable global a la memoria
@@ -121,3 +135,6 @@
 (test 'replace-var3 (replace_var '(int a = 10) '( (a 1) (a 1) )) '( (a 10) (a 10) ))
 
 (test 'add-function (add_function nil '(main ())) '((main () )) )
+
+(test 'search_f (search_f '( (main (aaaa)) (p () ) ) 'main) '(aaaa))
+(test 'search_f2 (search_f '( (main (aaaa)) (p () ) ) 'p) '())
