@@ -1,6 +1,6 @@
 ;autor mauro ciancio
 
-(defun exec (code &optional (input nil) (memory nil)(functions nil))
+(defun exec (code &optional (input nil) (memory nil) (functions nil))
     (if (null code)
         (run_fun (search_f functions 'main) input memory functions)
         (cond
@@ -14,14 +14,35 @@
     )
 )
 
+;corre la funcion f
+;input: entrada (valor valor2 ....)
+;memory: memoria
+;functions: funciones declaradas
+;output: salida (a b c d ...)
 (defun run_fun (f &optional (input nil) (memory nil) (functions nil) (output nil))
     (if (null f)
         output
         (cond
             ;printf
             (eq (caar f) 'printf)
-            nil
+            (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output))
         )
+    )
+)
+
+;expande una llamada a printf
+;expr: (printf expresion)
+(defun expand_printf (expr &optional (input nil) (memory nil) (functions nil) (output nil))
+    (append output (list (expand (cdr expr) input memory functions output)))
+)
+
+;expande una expresion
+;expr: a, a+b, 3, 3+4, 10+20+4, lala
+(defun expand (expr &optional (input nil) (memory nil) (functions nil) (output nil))
+    (cond   ((null expr) nil)
+            ((atom expr) expr)
+            ((eq (length expr) 1) (expand (car expr) input memory functions output))
+            (t expr)
     )
 )
 
@@ -150,3 +171,10 @@
 
 ;(test 'run-empty-main (exec '   (
 ;                    (main
+
+(test 'expand1 (expand '2) '2)
+(test 'expand2 (expand nil) nil)
+(test 'expand3 (expand '(2)) '2)
+
+(test 'expand-printf (expand_printf '(printf 2)) '(2))
+(test 'expand-printf2 (expand_printf '(printf (2))) '(2))
