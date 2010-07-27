@@ -29,7 +29,7 @@
 		(list (list (parse_assignment code)) (list))
 		(if (exists_var (cadr code) (car memory))
 			(cons (replace_var code (car memory)) (cdr memory))
-			nil
+			(cons (cons (parse_assignment code) (car memory)) (cdr memory))
 		)
 	)
 )
@@ -100,10 +100,10 @@
 							()
 							))
 
-;(test 'add-global-var2 (add_global_var '( ((a 2)) () ) '(int c = 1)) '(
-;							((c 1)(a 2))
-;							()
-;							))
+(test 'add-global-var2 (add_global_var '( ((a 2)) () ) '(int c = 1)) '(
+							((c 1)(a 2))
+							()
+							))
 
 (test 'exists-var1 (exists_var 'a nil) nil)
 (test 'exists-var2 (exists_var 'a '( (a 1) (b 2) )) t)
