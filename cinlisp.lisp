@@ -1,15 +1,15 @@
 ;autor mauro ciancio
 
-(defun exec (code input &optional (memory nil))
+(defun exec (code input &optional (memory nil)(functions nil))
 	(if (null code)
 		nil
 		(cond
 		;parseamos variables globales
 			(eq (caar code) 'int)
-			(exec (cdr code) input (add_global_var memory (car code)))
+			(exec (cdr code) input (add_global_var memory (car code)) functions)
 
-		;main
-			(t nil)
+		;parseamos las funciones
+			(t exec (cdr code) input memory (add_function functions (car code)))
 		)
 	)
 )
@@ -75,6 +75,12 @@
 	)
 )
 
+;functions: lista de funciones declaradas ( f f2 f3 ... )
+;f: nueva funcion a agregar
+(defun add_function (functions f)
+	(cons f functions)
+)
+
 ;=============================
 ;testing function
 ;=============================
@@ -113,3 +119,5 @@
 (test 'replace-var1 (replace_var '(int a = 10) '( (a 1) (b 2) )) '( (a 10) (b 2) ))
 (test 'replace-var2 (replace_var '(int c = 10) '( (a 1) (b 2) )) '( (a 1) (b 2) ))
 (test 'replace-var3 (replace_var '(int a = 10) '( (a 1) (a 1) )) '( (a 10) (a 10) ))
+
+(test 'add-function (add_function nil '(main ())) '((main () )) )
