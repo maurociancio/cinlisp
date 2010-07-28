@@ -71,6 +71,30 @@
     )
 )
 
+;e elemento
+;l lista
+;retorna si e existe en l
+(defun contains (e l)
+    (if (null l)
+        nil
+        (if (equal e (car l))
+            t
+            (contains e (cdr l))
+        )
+    )
+)
+
+;se fija si alguno de los elementos de any esta en all
+(defun is_in (any all)
+    (if (null any)
+        nil
+        (if (contains (car any) all)
+            t
+            (is_in (cdr any) all)
+        )
+    )
+)
+
 ;busca en las funciones la funcion con nombre name y la devuelve
 ;funciones: (f1 f2 ... f3)
 ;devuelve f que se llame name
@@ -446,3 +470,8 @@
 (test 'store-var-6 (store_var '(b 10) '( ((a 0)(b 0)) ( ((a 40)) ))) '( ((a 0)(b 10)) ( ((a 40)) )))
 (test 'store-var-7 (store_var '(a 10) '( ((a 0)) ( ((a 0)) ((a 0)) ))) '( ((a 0)) ( ((a 10)) ((a 0)) )))
 (test 'store-var-8 (store_var '(a 10) '( ((a 0)) ( ((a 0)) ((a 0))((a 0)) ))) '( ((a 0)) ( ((a 10)) ((a 0)) ((a 0)) )))
+
+(test 'is_in1 (is_in '(1 2) '(1 2 3)) t)
+(test 'is_in2 (is_in '(2) '(1 2 3)) t)
+(test 'is_in3 (is_in 'nil '(1 2 3)) nil)
+(test 'is_in4 (is_in '(1) '(2 3)) nil)
