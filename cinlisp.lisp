@@ -79,6 +79,19 @@
     (list (list) (list))
 )
 
+;agrega un stack a la memoria
+(defun grow_stack (memory)
+    (list
+        ;global
+        (car memory)
+        ;local
+        (if (null (nth 1 memory))
+            (list nil)
+            (cons nil (nth 1 memory))
+        )
+    )
+)
+
 ;agregar una variable global a la memoria
 ;memory: ( (globales) (stack) )
 ; (globales) = ( (a 1) (b 2) (c 3) ... )
@@ -301,3 +314,6 @@
 (test 'add_var1 (add_var nil '(a 10)) '((a 10)))
 (test 'add_var2 (add_var '((a 50)) '(a 10)) '((a 10)))
 (test 'add_var3 (add_var '((a 50)) '(b 10)) '((b 10)(a 50)))
+
+(test 'grow_stack (grow_stack (new_memory)) '(nil (nil)))
+(test 'grow_stack2 (grow_stack (grow_stack (new_memory))) '(nil (nil nil)))
