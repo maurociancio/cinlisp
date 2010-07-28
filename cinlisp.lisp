@@ -54,21 +54,28 @@
 ;expr: a, a+b, 3, 3+4, 10+20+4, lala
 (defun expand (expr &optional (input nil) (memory nil) (functions nil) (output nil))
     (cond
-            ;expresion nula
-            ((null expr) nil)
-            ;es un atomo
-            ((atom expr)
-                (if (numberp expr)
-                    ;es un numero literal
-                    expr
-                    ;es una variable, hay que buscarla en la memoria
-                    (search_var expr memory)
-                )
+        ;expresion nula
+        ((null expr) nil)
+        ;es un atomo
+        ((atom expr)
+            (if (numberp expr)
+                ;es un numero literal
+                expr
+                ;es una variable, hay que buscarla en la memoria
+                (search_var expr memory)
             )
-            ;es una lista con un atomo
-            ((eq (length expr) 1) (expand (car expr) input memory functions output))
-            (t expr)
+        )
+        ;es una lista con un atomo
+        ((eq (length expr) 1) (expand (car expr) input memory functions output))
+        ;expresiones booleenas (algo >= algo)
+        ((is_in '(!= == > < >= <=) expr) (eval_boolean expr memory))
+        (t expr)
     )
+)
+
+;
+(defun eval_boolean (expr memory)
+    nil
 )
 
 ;e elemento
