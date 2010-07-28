@@ -26,11 +26,22 @@
             ;parseamos variables locales
             ((eq (caar f) 'int)
             (run_fun (cdr f) input (add_local_var memory (parse_assignment (car f))) functions output))
+            ;scanf
+            ((eq (caar f) 'scanf)
+            (run_fun (cdr f) (cdr input) (expand_scanf (car input) (cadar f) memory) functions output))
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output)))
         )
     )
+)
+
+;expande la memoria usando el scanf
+;i input
+;v var
+;memory: memoria
+(defun expand_scanf (i var memory)
+    (store_var (list var i) memory)
 )
 
 ;expande una llamada a printf
@@ -377,6 +388,26 @@
         )
     )
     '(250 350 250)
+)
+
+(test 'run-printf5 (exec '
+        (
+            (int b = 0)
+            (main (
+                  (int a = 0)
+                  (printf a)
+                  (scanf a)
+                  (printf a)
+                  (printf b)
+                  (scanf b)
+                  (printf b)
+                  )
+            )
+        )
+        ;input
+        '(500 250)
+    )
+    '(0 500 0 250)
 )
 
 
