@@ -337,3 +337,4 @@
 )
 (test 'add_local_var1 (test_add_local_var1) '(nil (((a 10)))))
 (test 'add_local_var2 (add_local_var (test_add_local_var1) '(b 20)) '(nil (((b 20)(a 10)))))
+(test 'add_local_var3 (add_local_var (grow_stack (test_add_local_var1)) '(b 20)) '(nil (((b 20))((a 10)))))
