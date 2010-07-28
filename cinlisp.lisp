@@ -2,7 +2,7 @@
 
 (defun exec (code &optional (input nil) (memory nil) (functions nil))
     (if (null code)
-        (run_fun (search_f functions 'main) input memory functions)
+        (run_fun (search_f functions 'main) input (grow_stack memory) functions)
         (cond
             ;parseamos variables globales
             ((eq (caar code) 'int)
@@ -102,6 +102,21 @@
     (if (null memory)
         (add_global_var (new_memory) var_val)
         (cons (add_var (car memory) var_val) (cdr memory))
+    )
+)
+
+;agrega o modifica una variable local
+(defun add_local_var (memory var_val)
+    (if (null memory)
+        ;fallamos por que la memoria no puede ser null
+        nil
+        (list
+            (car memory)
+            (cons
+                (add_var (caadr memory) var_val)
+                (cdadr memory)
+            )
+        )
     )
 )
 
@@ -208,8 +223,7 @@
 ;tests
 ;=============================
 (defun enable_traces ()
-    (trace exec)
-    (trace run_fun)
+    (trace grow_stack)
 )
 ;(enable_traces)
 
@@ -317,3 +331,9 @@
 
 (test 'grow_stack (grow_stack (new_memory)) '(nil (nil)))
 (test 'grow_stack2 (grow_stack (grow_stack (new_memory))) '(nil (nil nil)))
+
+(defun test_add_local_var1 ()
+    (add_local_var (grow_stack (new_memory)) '(a 10))
+)
+(test 'add_local_var1 (test_add_local_var1) '(nil (((a 10)))))
+(test 'add_local_var2 (add_local_var (test_add_local_var1) '(b 20)) '(nil (((b 20)(a 10)))))
