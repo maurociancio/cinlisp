@@ -25,7 +25,7 @@
         (cond
             ;parseamos variables locales
             ((eq (caar f) 'int)
-            (run_fun (cdr f) input memory functions output))
+            (run_fun (cdr f) input (add_local_var memory (parse_assignment (car f))) functions output))
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output)))
@@ -309,6 +309,21 @@
         )
     )
     '(50 150 250)
+)
+
+(test 'run-printf4 (exec '
+        (
+            (main (
+                  (int a = 250)
+                  (int b = 350)
+                  (printf a)
+                  (printf b)
+                  (printf a)
+                  )
+            )
+        )
+    )
+    '(250 350 250)
 )
 
 
