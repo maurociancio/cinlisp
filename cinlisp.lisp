@@ -291,3 +291,7 @@
 (test 'search_var3 (search_var 'b '( ((a 10)(b 50)) (((b 1000)) ( (b 500)) ) ) ) '1000)
 (test 'search_var4 (search_var 'b '( ((a 10)(b 50)) (((b 1000)) ) ) ) '1000)
 (test 'search_var5 (search_var 'a '( ((a 10)(b 50)) (((b 1000)) ) ) ) '10)
+
+(test 'add_var1 (add_var nil '(a 10)) '((a 10)))
+(test 'add_var2 (add_var '((a 50)) '(a 10)) '((a 10)))
+(test 'add_var3 (add_var '((a 50)) '(b 10)) '((b 10)(a 50)))
