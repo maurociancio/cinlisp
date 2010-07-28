@@ -82,12 +82,7 @@
     ;si la mem es null la inicializamos
     (if (null memory)
         (list (list var_val) (list))
-        (if (exists_var (car var_val) (car memory))
-            ;reemplazamos la variable que ya existe en la memoria
-            (cons (replace_var var_val (car memory)) (cdr memory))
-            ;creamos la variable en memoria
-            (cons (cons var_val (car memory)) (cdr memory))
-        )
+        (cons (add_var (car memory) var_val) (cdr memory))
     )
 )
 
