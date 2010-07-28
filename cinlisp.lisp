@@ -73,6 +73,12 @@
     )
 )
 
+;inicializa la memoria
+;( () () )
+(defun new_memory ()
+    (list (list) (list))
+)
+
 ;agregar una variable global a la memoria
 ;memory: ( (globales) (stack) )
 ; (globales) = ( (a 1) (b 2) (c 3) ... )
@@ -81,7 +87,7 @@
 (defun add_global_var (memory var_val)
     ;si la mem es null la inicializamos
     (if (null memory)
-        (list (list var_val) (list))
+        (add_global_var (new_memory) var_val)
         (cons (add_var (car memory) var_val) (cdr memory))
     )
 )
