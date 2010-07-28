@@ -174,6 +174,59 @@
     )
 )
 
+;null fun que no modifica la memoria
+(defun null_update (var_var memory)
+    memory
+)
+
+(defun store_var (var_val memory)
+    (if (null memory)
+        nil
+        ;vemos si hay algun stack
+        (if (null (cadr memory))
+            ;no hay stacks, solo cambiamos en global
+            (store_var_impl var_val memory 'replace_var 'null_update)
+            ;hay stacks, vemos si la variable existe en el primer stack, sino cambiamos en el global
+            (if (exists_var (car var_val) (caadr memory))
+                ;existe la variable en el primer stack, cambiamos esa
+                (store_var_impl var_val memory 'null_update 'replace_var)
+                ;no existe la variable en el stack, deberia existir en el global, cambiamos global
+                (store_var_impl var_val memory 'replace_var 'null_update)
+            )
+        )
+    )
+)
+
+;actualiza una variable primero buscando en el stack y luego en el global
+;global_update_f: funciones que actualizan la memoria global
+;local_update_f: f que actualiza la memoria local (stack)
+(defun store_var_impl (var_val memory global_update_f local_update_f)
+    (if (null memory)
+        nil
+        (list
+            ;seccion global
+            (funcall global_update_f var_val (car memory))
+            (if (null (cadr memory))
+                nil
+                (my_list
+                    ;seccion primer stack
+                    (funcall local_update_f var_val (caadr memory))
+                    (cdadr memory)
+                )
+            )
+        )
+    )
+)
+
+(defun my_list (e1 e2)
+    (cond
+        ((and (null e1) (null e2)) '(nil nil))
+        ((and (not (null e1)) (null e2)) (list e1))
+        ((and (null e1) (not(null e2))) (list e2))
+        ((and (not (null e1)) (not(null e2))) (cons e1 e2))
+    )
+)
+
 ;busca el valor de una variable en la memoria
 ;var: a
 ;memory: ( (a 20) .... )
@@ -353,3 +406,12 @@
 (test 'add_local_var1 (test_add_local_var1) '(nil (((a 10)))))
 (test 'add_local_var2 (add_local_var (test_add_local_var1) '(b 20)) '(nil (((b 20)(a 10)))))
 (test 'add_local_var3 (add_local_var (grow_stack (test_add_local_var1)) '(b 20)) '(nil (((b 20))((a 10)))))
+
+(test 'store-var-1 (store_var '(a 10) (new_memory)) '(nil nil))
+(test 'store-var-2 (store_var '(a 10) (grow_stack (new_memory))) '(nil (nil nil)))
+(test 'store-var-3 (store_var '(a 10) '( ((a 0)) nil)) '( ((a 10)) nil))
+(test 'store-var-4 (store_var '(a 10) '( ((a 0)(b 10)) nil)) '( ((a 10)(b 10)) nil))
+(test 'store-var-5 (store_var '(a 10) '( ((a 0)) ( ((a 40)) ))) '( ((a 0)) ( ((a 10)) )))
+(test 'store-var-6 (store_var '(b 10) '( ((a 0)(b 0)) ( ((a 40)) ))) '( ((a 0)(b 10)) ( ((a 40)) )))
+(test 'store-var-7 (store_var '(a 10) '( ((a 0)) ( ((a 0)) ((a 0)) ))) '( ((a 0)) ( ((a 10)) ((a 0)) )))
+(test 'store-var-8 (store_var '(a 10) '( ((a 0)) ( ((a 0)) ((a 0))((a 0)) ))) '( ((a 0)) ( ((a 10)) ((a 0)) ((a 0)) )))
