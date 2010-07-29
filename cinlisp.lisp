@@ -74,6 +74,7 @@
     )
 )
 
+;evalua una expresion no booleana
 (defun eval_expr (expr memory)
     (if (atom expr)
         (expand expr memory)
@@ -85,10 +86,24 @@
     (funcall (car prefix) (eval_expr (cadr prefix) memory) (eval_expr (caddr prefix) memory))
 )
 
-;
+;evalua una expresion booleana
 (defun eval_boolean (expr memory)
-    nil
+    (if (eq (eval_boolean_impl expr memory (inf_pref expr)) t) '1 '0)
 )
+
+(defun eval_boolean_impl (expr memory prefix)
+    (if (atom expr)
+        ;si es un atomo expandimos el valor
+        (expand expr memory)
+        ;manejamos los casos particulares primero
+        (cond
+            ((eq (car prefix) '==)
+                (eq (eval_expr (cadr prefix) memory) (eval_expr (caddr prefix) memory))
+            )
+        )
+    )
+)
+
 
 ;convierte de infijo a prefijo
 (defun inf_pref (exp &optional (operadores nil) (operandos nil))
@@ -105,7 +120,7 @@
         ((es_operador(car exp))
             (if (null operadores)
                 (inf_pref (cdr exp) (list (car exp)) operandos)
-                (if (<= (peso (car exp)) (peso(car operadores)))
+                (if (<= (peso (car exp)) (peso (car operadores)))
                     (inf_pref (cdr exp) (cons (car exp) (cdr operadores))
                         (cons (list (car operadores) (nth 1 operandos) (nth 0 operandos)) (cddr operandos))
                     )
@@ -556,3 +571,8 @@
 (test 'expand6 (eval_expr 'a '( ((a 5)) nil)) 5)
 (test 'expand7 (expand '(a + 50) '( ((a 5)) nil)) 55)
 (test 'expand8 (expand '(a + a) '( ((a 5)) nil)) 10)
+
+(test 'bool1 (eval_boolean '(1 == 1) nil) 1)
+(test 'bool2 (eval_boolean '((1+2) == 0) nil) 0)
+(test 'bool3 (eval_boolean '(1 == 0) nil) 0)
+(test 'bool4 (eval_boolean '((1 + 2) == 3) nil) 1)
