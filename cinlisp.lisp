@@ -41,6 +41,10 @@
             ((and (eq (length (car f)) 2) (atom (caar f)) (eq (nth 1 (car f)) '++))
                 (run_fun (cons (list (caar f) '= (list (caar f) '+ '1)) (cdr f)) input memory functions output)
             )
+            ;++ a
+            ((and (eq (length (car f)) 2) (atom (cadar f)) (eq (nth 0 (car f)) '++))
+                (run_fun (cons (reverse (car f)) (cdr f)) input memory functions output)
+            )
 
             ;printf
             ((eq (caar f) 'printf)
@@ -595,6 +599,20 @@
     '(6)
 )
 
+(test 'run-printf10 (exec '
+        (
+            (main (
+                  (int a = 5)
+                  (++ a)
+                  (printf a)
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(6)
+)
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
