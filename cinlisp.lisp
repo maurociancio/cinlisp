@@ -46,6 +46,16 @@
                 (run_fun (cons (reverse (car f)) (cdr f)) input memory functions output)
             )
 
+            ;if
+            ((eq (caar f) 'if)
+                (if (eq (eval_boolean (cadar f) memory) '1)
+                    ;agregamos la rama true del if
+                    (run_fun (append (nth 2 (car f)) (cdr f)) memory functions output)
+                    ;revisamos si hay else, sino seguimos con el codigo
+                    (run_fun (cdr f) input memory functions output)
+                )
+            )
+
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) memory output)))
@@ -642,6 +652,42 @@
         nil
     )
     '(1 -1)
+)
+
+(test 'run-printf12 (exec '
+        (
+            (main (
+                  (int a = 0)
+                  (if (a == 0) (
+                      (printf 10)
+                      (printf 20)
+                      )
+                  )
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(10 20)
+)
+
+(test 'run-printf13 (exec '
+        (
+            (main (
+                  (int a = 0)
+                  (if (a != 0) (
+                      (printf 10)
+                      (printf 20)
+                      )
+                  )
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '()
 )
 
 (test 'expand1 (expand '2) '2)
