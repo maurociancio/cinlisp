@@ -48,7 +48,7 @@
 
             ;if
             ((eq (caar f) 'if)
-                (if (eq (eval_boolean (cadar f) memory) '1)
+                (if (not (eq (eval_boolean (cadar f) memory) '0))
                     ;agregamos la rama true del if
                     (run_fun (append (nth 2 (car f)) (cdr f)) memory functions output)
                     ;revisamos si hay else, sino seguimos con el codigo
