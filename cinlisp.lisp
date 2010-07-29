@@ -61,6 +61,19 @@
                 )
             )
 
+            ;while
+            ((eq (caar f) 'while)
+                (if (not (eq (eval_boolean (cadar f) memory) '0))
+                    ;while dio true, juntamos codigo
+                    (run_fun
+                        (append (nth 2 (car f)) f)
+                    input memory functions output)
+
+                    ;while dio false
+                    (run_fun (cdr f) input memory functions output)
+                )
+            )
+
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) memory output)))
@@ -743,6 +756,38 @@
         nil
     )
     '(10 20)
+)
+
+(test 'run-printf16 (exec '
+        (
+            (main (
+                  (int i = 0)
+                  (while (i < 10) (
+                      (printf i)
+                      (i ++)
+                  ))
+            ))
+        )
+        ;input
+        nil
+    )
+    '(0 1 2 3 4 5 6 7 8 9)
+)
+
+(test 'run-printf17 (exec '
+        (
+            (main (
+                  (int i = 0)
+                  (while (i < 10) (
+                      (printf i)
+                      (scanf i)
+                  ))
+            ))
+        )
+        ;input
+        '(5 -10 -20 -30 40)
+    )
+    '(0 5 -10 -20 -30)
 )
 
 (test 'expand1 (expand '2) '2)
