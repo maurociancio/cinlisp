@@ -486,6 +486,22 @@
     '(0 500 0 250)
 )
 
+(test 'run-printf6 (exec '
+        (
+            (main (
+                  (int a = 0)
+                  (printf (a + 50))
+                  (printf (2 * (a + 50)))
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(50 100)
+)
+
+
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
