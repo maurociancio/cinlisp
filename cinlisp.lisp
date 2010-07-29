@@ -26,9 +26,17 @@
             ;parseamos variables locales
             ((eq (caar f) 'int)
             (run_fun (cdr f) input (add_local_var memory (parse_assignment (car f))) functions output))
+
             ;scanf
             ((eq (caar f) 'scanf)
             (run_fun (cdr f) (cdr input) (expand_scanf (car input) (cadar f) memory) functions output))
+
+            ; variable = expresion
+            ((and (eq (length (car f)) 3) (atom (caar f)) (eq (nth 1 (car f)) '=))
+            (run_fun (cdr f) input
+                (store_var (parse_assignment (list (caar f) '= (expand (nth 2 (car f)) memory))) memory)
+            functions output))
+
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) memory output)))
@@ -350,11 +358,16 @@
 (defun parse_assignment (code)
     (if (null code)
         nil
-        (if (eq (length code) 2)
-            ;caso sin valor inicial
-            (list (cadr code) 0)
-            ;caso con valor inicial
-            (list (cadr code) (nth 3 code))
+        (if (eq (car code) 'int)
+            ;declaracion y asignacion
+            (if (eq (length code) 2)
+                ;caso sin valor inicial
+                (list (cadr code) 0)
+                ;caso con valor inicial
+                (list (cadr code) (nth 3 code))
+            )
+            ;asignacion
+            (list (car code) (nth 2 code))
         )
     )
 )
@@ -381,6 +394,9 @@
 ;=============================
 (defun enable_traces ()
     (trace expand)
+    (trace exec)
+    (trace run_fun)
+    (trace parse_assignment)
     (trace eval_expr)
     (trace eval_expr_impl)
 )
@@ -391,6 +407,7 @@
 (test 'parse-assign1 (parse_assignment '(int a)) '(a 0))
 (test 'parse-assign2 (parse_assignment '(int b)) '(b 0))
 (test 'parse-assign3 (parse_assignment '(int c = 1)) '(c 1))
+(test 'parse-assign4 (parse_assignment '(c = 1)) '(c 1))
 
 (test 'add-global-var1 (add_global_var nil '(c 1))
                             '(
@@ -520,6 +537,24 @@
     '(50 100)
 )
 
+(test 'run-printf7 (exec '
+        (
+            (int b = 5000)
+            (main (
+                  (int a = 5)
+                  (a = 50)
+                  (printf a)
+                  (a = 10)
+                  (printf a)
+                  (printf b)
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(50 10 5000)
+)
 
 
 (test 'expand1 (expand '2) '2)
