@@ -184,6 +184,16 @@
     (contains op '(+ - * / ( ) < > <= >= == !=))
 )
 
+(defun peso (op)
+    (cond
+        ((eq op '*) 2)
+        ((eq op '/) 2)
+        ((eq op '-) 1)
+        ((eq op '+) 1)
+        (t 0)
+    )
+)
+
 ;e elemento
 ;l lista
 ;retorna si e existe en l
@@ -715,6 +725,24 @@
         nil
     )
     '(30 40)
+)
+
+(test 'run-printf15 (exec '
+        (
+            (main (
+                  (int a = 0)
+                  (if (a + 1 >= 1) (
+                      (printf 10)
+                      (printf 20)
+                      )
+                   )
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(10 20)
 )
 
 (test 'expand1 (expand '2) '2)
