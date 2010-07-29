@@ -31,7 +31,7 @@
             (run_fun (cdr f) (cdr input) (expand_scanf (car input) (cadar f) memory) functions output))
             ;printf
             ((eq (caar f) 'printf)
-            (run_fun (cdr f) input memory functions (expand_printf (car f) input memory functions output)))
+            (run_fun (cdr f) input memory functions (expand_printf (car f) memory output)))
         )
     )
 )
@@ -46,13 +46,13 @@
 
 ;expande una llamada a printf
 ;expr: (printf expresion)
-(defun expand_printf (expr &optional (input nil) (memory nil) (functions nil) (output nil))
-    (append output (list (expand (cdr expr) input memory functions output)))
+(defun expand_printf (expr &optional (memory nil) (output nil))
+    (append output (list (expand (cdr expr) memory)))
 )
 
 ;expande una expresion
 ;expr: a, a+b, 3, 3+4, 10+20+4, lala
-(defun expand (expr &optional (input nil) (memory nil) (functions nil) (output nil))
+(defun expand (expr &optional (memory nil))
     (cond
         ;expresion nula
         ((null expr) nil)
@@ -66,11 +66,23 @@
             )
         )
         ;es una lista con un atomo
-        ((eq (length expr) 1) (expand (car expr) input memory functions output))
+        ((eq (length expr) 1) (expand (car expr) memory))
         ;expresiones booleenas (algo >= algo)
         ((is_in '(!= == > < >= <=) expr) (eval_boolean expr memory))
-        (t expr)
+        ;expresiones numericas
+        (t (eval_expr expr memory))
     )
+)
+
+(defun eval_expr (expr memory)
+    (if (atom expr)
+        (expand expr memory)
+        (eval_expr_impl expr memory (inf_pref expr))
+    )
+)
+
+(defun eval_expr_impl (expr memory prefix)
+    (funcall (car prefix) (eval_expr (cadr prefix) memory) (eval_expr (caddr prefix) memory))
 )
 
 ;
@@ -349,7 +361,9 @@
 ;tests
 ;=============================
 (defun enable_traces ()
-    (trace grow_stack)
+    (trace expand)
+    (trace eval_expr)
+    (trace eval_expr_impl)
 )
 ;(enable_traces)
 
@@ -517,3 +531,12 @@
 (test 'inf2pre (inf_pref '(1 + 2)) '(+ 1 2))
 (test 'inf2pre2 (inf_pref '((1 + 2))) '(+ 1 2))
 (test 'inf2pre3 (inf_pref '((1 + 2) * 2)) '(* (+ 1 2) 2))
+
+(test 'expand1 (expand '((1 + 2) * 2)) 6)
+(test 'expand2 (expand '(2 * 2)) 4)
+(test 'expand3 (expand '(10 / 2)) 5)
+(test 'expand4 (expand '(a) '( ((a 5)) nil)) 5)
+(test 'expand5 (expand 'a '( ((a 5)) nil)) 5)
+(test 'expand6 (eval_expr 'a '( ((a 5)) nil)) 5)
+(test 'expand7 (expand '(a + 50) '( ((a 5)) nil)) 55)
+(test 'expand8 (expand '(a + a) '( ((a 5)) nil)) 10)
