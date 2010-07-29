@@ -52,7 +52,12 @@
                     ;agregamos la rama true del if
                     (run_fun (append (nth 2 (car f)) (cdr f)) memory functions output)
                     ;revisamos si hay else, sino seguimos con el codigo
-                    (run_fun (cdr f) input memory functions output)
+                    (if (>= (length (car f)) 4)
+                        ;hay rama del else
+                        (run_fun (append (nth 4 (car f)) (cdr f)) memory functions output)
+                        ;no hay else
+                        (run_fun (cdr f) input memory functions output)
+                    )
                 )
             )
 
@@ -690,6 +695,28 @@
     '()
 )
 
+(test 'run-printf14 (exec '
+        (
+            (main (
+                  (int a = 0)
+                  (if (a != 0) (
+                      (printf 10)
+                      (printf 20)
+                      )
+                   else (
+                      (printf 30)
+                      (printf 40)
+                   )
+                  )
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(30 40)
+)
+
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
 (test 'expand3 (expand '(2)) '2)
@@ -751,4 +778,4 @@
 (test 'bool5 (eval_boolean '((1 + 2) != 3) nil) 0)
 (test 'bool6 (eval_boolean '((1 + 2) != 4) nil) 1)
 (test 'bool7 (eval_boolean '((1 + 2) >= 4) nil) 0)
-(test 'bool7 (eval_boolean '((1 + 2) < 4) nil) 1)
+(test 'bool8 (eval_boolean '((1 + 2) < 4) nil) 1)
