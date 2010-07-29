@@ -31,11 +31,16 @@
             ((eq (caar f) 'scanf)
             (run_fun (cdr f) (cdr input) (expand_scanf (car input) (cadar f) memory) functions output))
 
-            ; variable = expresion
+            ;variable = expresion
             ((and (eq (length (car f)) 3) (atom (caar f)) (eq (nth 1 (car f)) '=))
             (run_fun (cdr f) input
                 (store_var (parse_assignment (list (caar f) '= (expand (nth 2 (car f)) memory))) memory)
             functions output))
+
+            ;a ++
+            ((and (eq (length (car f)) 2) (atom (caar f)) (eq (nth 1 (car f)) '++))
+                (run_fun (cons (list (caar f) '= (list (caar f) '+ '1)) (cdr f)) input memory functions output)
+            )
 
             ;printf
             ((eq (caar f) 'printf)
@@ -573,6 +578,21 @@
         nil
     )
     '(50 5050 5000)
+)
+
+(test 'run-printf9 (exec '
+        (
+            (main (
+                  (int a = 5)
+                  (a ++)
+                  (printf a)
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(6)
 )
 
 
