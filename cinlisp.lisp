@@ -78,6 +78,37 @@
     nil
 )
 
+;convierte de infijo a prefijo
+(defun inf_pref (exp &optional (operadores nil) (operandos nil))
+    (cond
+        ((atom exp)
+            (if (not (null exp))
+                exp
+                (if (null operadores)
+                    (car operandos)
+                    (inf_pref exp (cdr operadores) (cons (list (car operadores) (nth 1 operandos) (nth 0 operandos)) (cddr operandos)))
+                )
+            )
+        )
+        ((es_operador(car exp))
+            (if (null operadores)
+                (inf_pref (cdr exp) (list (car exp)) operandos)
+                (if (<= (peso (car exp)) (peso(car operadores)))
+                    (inf_pref (cdr exp) (cons (car exp) (cdr operadores))
+                        (cons (list (car operadores) (nth 1 operandos) (nth 0 operandos)) (cddr operandos))
+                    )
+                    (inf_pref (cdr exp) (cons (car exp) operadores) operandos)
+                )
+            )
+        )
+        (t (inf_pref (cdr exp) operadores (cons(inf_pref(car exp)) operandos)))
+    )
+)
+
+(defun es_operador (op)
+    (contains op '(+ - * / ( ) < > <= >= == !=))
+)
+
 ;e elemento
 ;l lista
 ;retorna si e existe en l
@@ -482,3 +513,7 @@
 (test 'is_in2 (is_in '(2) '(1 2 3)) t)
 (test 'is_in3 (is_in 'nil '(1 2 3)) nil)
 (test 'is_in4 (is_in '(1) '(2 3)) nil)
+
+(test 'inf2pre (inf_pref '(1 + 2)) '(+ 1 2))
+(test 'inf2pre2 (inf_pref '((1 + 2))) '(+ 1 2))
+(test 'inf2pre3 (inf_pref '((1 + 2) * 2)) '(* (+ 1 2) 2))
