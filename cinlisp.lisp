@@ -104,7 +104,10 @@
                                 ;cuerpo del for
                                 (nth 4 (car f))
                                 ;incremento
-                                (list (nth 3 (car f)))
+                                (if (null (nth 3 (car f)))
+                                    nil
+                                    (list (nth 3 (car f)))
+                                )
                                 ;for nuevamente, pero sin el init
                                 (cons
                                     (append
@@ -881,6 +884,21 @@
     '(9)
 )
 
+(test 'run-printf21 (exec '
+        (
+            (main (
+                  (int i = 9)
+                  (for () (i < 10) () (
+                      (printf i)
+                      (i ++)
+                  ))
+            ))
+        )
+        ;input
+        nil
+    )
+    '(9)
+)
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
