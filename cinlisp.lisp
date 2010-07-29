@@ -313,6 +313,19 @@
     )
 )
 
+;saca el ultimo stack de la memoria
+(defun decrease_stack (memory)
+    (list
+        ;global
+        (car memory)
+        ;local
+        (if (null (nth 1 memory))
+            nil
+            (cdr (nth 1 memory))
+        )
+    )
+)
+
 ;agregar una variable global a la memoria
 ;memory: ( (globales) (stack) )
 ; (globales) = ( (a 1) (b 2) (c 3) ... )
@@ -919,6 +932,8 @@
 
 (test 'grow_stack (grow_stack (new_memory)) '(nil (nil)))
 (test 'grow_stack2 (grow_stack (grow_stack (new_memory))) '(nil (nil nil)))
+(test 'grow_stack3 (decrease_stack (grow_stack (new_memory))) '(nil ()))
+(test 'grow_stack4 (decrease_stack (grow_stack (grow_stack (new_memory)))) '(nil (nil)))
 
 (defun test_add_local_var1 ()
     (add_local_var (grow_stack (new_memory)) '(a 10))
@@ -926,6 +941,7 @@
 (test 'add_local_var1 (test_add_local_var1) '(nil (((a 10)))))
 (test 'add_local_var2 (add_local_var (test_add_local_var1) '(b 20)) '(nil (((b 20)(a 10)))))
 (test 'add_local_var3 (add_local_var (grow_stack (test_add_local_var1)) '(b 20)) '(nil (((b 20))((a 10)))))
+(test 'add_local_var4 (decrease_stack (grow_stack (test_add_local_var1))) '(nil (((a 10)))))
 
 (test 'store-var-1 (store_var '(a 10) (new_memory)) '(nil nil))
 (test 'store-var-2 (store_var '(a 10) (grow_stack (new_memory))) '(nil (nil nil)))
