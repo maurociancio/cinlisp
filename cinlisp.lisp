@@ -38,11 +38,11 @@
             functions output))
 
             ;a ++
-            ((and (eq (length (car f)) 2) (atom (caar f)) (eq (nth 1 (car f)) '++))
-                (run_fun (cons (list (caar f) '= (list (caar f) '+ '1)) (cdr f)) input memory functions output)
+            ((and (eq (length (car f)) 2) (atom (caar f)) (get_operation (nth 1 (car f))))
+                (run_fun (cons (list (caar f) '= (list (caar f) (get_operation (nth 1 (car f))) '1)) (cdr f)) input memory functions output)
             )
             ;++ a
-            ((and (eq (length (car f)) 2) (atom (cadar f)) (eq (nth 0 (car f)) '++))
+            ((and (eq (length (car f)) 2) (atom (cadar f)) (get_operation (nth 0 (car f))))
                 (run_fun (cons (reverse (car f)) (cdr f)) input memory functions output)
             )
 
@@ -50,6 +50,18 @@
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) memory output)))
         )
+    )
+)
+
+;f: codigo
+;si es ++ devuelve +
+;si es -- devuelve -
+;sino devuelve nil
+(defun get_operation (f)
+    (cond
+        ((eq f '++) '+)
+        ((eq f '--) '-)
+        (t nil)
     )
 )
 
@@ -612,6 +624,24 @@
         nil
     )
     '(6)
+)
+
+(test 'run-printf10 (exec '
+        (
+            (main (
+                  (int a = 0)
+                  (int b = 0)
+                  (++ a)
+                  (-- b)
+                  (printf a)
+                  (printf b)
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(1 -1)
 )
 
 (test 'expand1 (expand '2) '2)
