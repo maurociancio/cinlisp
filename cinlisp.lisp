@@ -74,6 +74,53 @@
                 )
             )
 
+            ;for
+            ;(for (init) (cond) (incr)
+            ;( (acc1)
+            ;  ...
+            ;))
+            ((eq (caar f) 'for)
+                (run_fun
+                    (if (not (null (nth 1 (car f))))
+                        ;no null el init
+                        (cons
+                            ;init
+                            (nth 1 (car f))
+                            (cons
+                                (append
+                                    (list 'for nil)
+                                    (cddar f)
+                                )
+                                (cdr f)
+                            )
+                        )
+
+                        ;null init
+                        ;evaluamos la condiciones del for
+                        (if (not (eq (eval_boolean (nth 2 (car f)) memory) '0))
+                            ;true la condicion
+                            ;juntamos cuerpo del for con incr si existe
+                            (append
+                                ;cuerpo del for
+                                (nth 4 (car f))
+                                ;incremento
+                                (list (nth 3 (car f)))
+                                ;for nuevamente, pero sin el init
+                                (cons
+                                    (append
+                                        (list 'for nil)
+                                        (cddar f)
+                                    )
+                                    (cdr f)
+                                )
+                            )
+                            ;false condicion
+                            (cdr f)
+                        )
+                    )
+                input memory functions output)
+            )
+
             ;printf
             ((eq (caar f) 'printf)
             (run_fun (cdr f) input memory functions (expand_printf (car f) memory output)))
@@ -788,6 +835,20 @@
         '(5 -10 -20 -30 40)
     )
     '(0 5 -10 -20 -30)
+)
+
+(test 'run-printf18 (exec '
+        (
+            (main (
+                  (for (int i = 0) (i < 10) (i ++) (
+                      (printf i)
+                  ))
+            ))
+        )
+        ;input
+        nil
+    )
+    '(0 1 2 3 4 5 6 7 8 9)
 )
 
 (test 'expand1 (expand '2) '2)
