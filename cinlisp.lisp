@@ -626,7 +626,7 @@
     '(6)
 )
 
-(test 'run-printf10 (exec '
+(test 'run-printf11 (exec '
         (
             (main (
                   (int a = 0)
