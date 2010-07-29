@@ -851,6 +851,37 @@
     '(0 1 2 3 4 5 6 7 8 9)
 )
 
+(test 'run-printf19 (exec '
+        (
+            (main (
+                  (int i = 9)
+                  (for () (i < 10) (i ++) (
+                      (printf i)
+                  ))
+            ))
+        )
+        ;input
+        nil
+    )
+    '(9)
+)
+
+(test 'run-printf20 (exec '
+        (
+            (main (
+                  (int i = 9)
+                  (for () (i < 10) (i ++) (
+                      (printf i)
+                  ))
+            ))
+        )
+        ;input
+        nil
+    )
+    '(9)
+)
+
+
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
 (test 'expand3 (expand '(2)) '2)
