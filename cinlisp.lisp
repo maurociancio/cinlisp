@@ -556,6 +556,25 @@
     '(50 10 5000)
 )
 
+(test 'run-printf8 (exec '
+        (
+            (int b = 5000)
+            (main (
+                  (int a = 5)
+                  (a = 50)
+                  (printf a)
+                  (a = (a + b))
+                  (printf a)
+                  (printf b)
+                  )
+            )
+        )
+        ;input
+        nil
+    )
+    '(50 5050 5000)
+)
+
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
