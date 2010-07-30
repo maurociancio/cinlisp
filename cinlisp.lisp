@@ -54,7 +54,7 @@
             ((eq (caar f) 'scanf)
             (run_fun (cdr f) (cdr input) (expand_scanf (car input) (cadar f) memory) functions output))
 
-            ;variable = expresion
+            ;variable = (expresion)
             ((and (eq (length (car f)) 3) (atom (caar f)) (eq (nth 1 (car f)) '=))
             (run_fun (cdr f) input
                 (store_var (parse_assignment (list (caar f) '= (expand (nth 2 (car f)) memory))) memory)
@@ -544,6 +544,8 @@
     (trace parse_assignment)
     (trace eval_expr)
     (trace eval_expr_impl)
+    (trace search_f)
+    (trace store_var)
 )
 ;(enable_traces)
 
@@ -585,6 +587,7 @@
 
 (test 'search_f (search_f '( (main (aaaa)) (p () ) ) 'main) '(aaaa))
 (test 'search_f2 (search_f '( (main (aaaa)) (p () ) ) 'p) '())
+(test 'search_f3 (search_f '( (main ((say_hello nil))) (say_hello ((printf 50)))) 'main) '((say_hello nil)))
 
 (test 'run-empty-main (exec '
         (
@@ -935,6 +938,62 @@
     )
     '(9)
 )
+
+(test 'run-printf22 (exec '
+        (
+            (say_hello (
+                (printf 50)
+            ))
+            (main (
+                (say_hello ())
+            ))
+        )
+        ;input
+        nil
+    )
+    '(50)
+)
+
+(test 'run-printf23 (exec '
+        (
+            (int a = 100)
+            (say_hello (
+                (printf a)
+            ))
+            (main (
+                (int a = 50)
+                (printf a)
+                (say_hello ())
+            ))
+        )
+        ;input
+        nil
+    )
+    '(50 100)
+)
+
+(test 'factorial (exec '
+        (
+            (int actual = 10)
+            (int res = 1)
+            (factorial (
+                (if (actual >= 2) (
+                    (res = (res * actual))
+                    (actual --)
+                    (factorial ())
+               ))
+            ))
+            (main (
+                (factorial ())
+                (printf res)
+            ))
+        )
+        ;input
+        nil
+    )
+    '(3628800)
+)
+
 
 (test 'expand1 (expand '2) '2)
 (test 'expand2 (expand nil) nil)
