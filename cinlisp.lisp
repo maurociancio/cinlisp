@@ -23,6 +23,29 @@
     (if (null f)
         output
         (cond
+            ((equal (car f) '(decrease))
+                (run_fun (cdr f) input (decrease_stack memory) functions output)
+            )
+
+            ;llamada a funciones
+            ;funcion ()
+            ((and (= (length (car f)) 2) (atom (caar f)) (eq (nth 1 (car f)) '()))
+                (run_fun
+                    ;junto el codigo de la funcion
+                    (append
+                        ;codigo de la funcion
+                        (search_f functions (caar f))
+
+                        ;marca para saber detectar cuando termina la funcion y poder levantar el stack
+                        '((decrease))
+
+                        ;codigo de la funcion actual restante
+                        (cdr f)
+                    )
+                    input (grow_stack memory) functions output
+                )
+            )
+
             ;parseamos variables locales
             ((eq (caar f) 'int)
             (run_fun (cdr f) input (add_local_var memory (parse_assignment (car f))) functions output))
