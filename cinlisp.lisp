@@ -1,3 +1,4 @@
+;interprete de c
 ;autor mauro ciancio
 
 (defun exec (code &optional (input nil) (memory nil) (functions nil))
